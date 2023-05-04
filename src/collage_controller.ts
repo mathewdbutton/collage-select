@@ -8,12 +8,7 @@ export default class extends Controller {
   }
 
   declare xOffsetValue: number
-
   declare readonly canvasTarget: HTMLCanvasElement;
-
-  connect() {
-    // this.canvasTarget.style.width = (this.canvasTarget.width * 10) + "px";
-  }
 
   addImage(a: Event) {
     let allSelectedImages = [];
