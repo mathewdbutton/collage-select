@@ -1,0 +1,13 @@
+html,
+body {
+    height: 100vh;
+}
+
+
+@keyframes pop {
+  50%  {transform: scale(1.2);}
+}
+
+.pop{
+  animation: pop 0.3s linear 1;
+}
