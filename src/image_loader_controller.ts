@@ -1,7 +1,18 @@
-export function setupImageLoader(element: HTMLInputElement) {
+import { Controller } from "@hotwired/stimulus"
 
-  const loadImage = (files: Array<File>) => {
-    console.log("hey");
+export default class extends Controller {
+  static targets = ["input"];
+
+  declare readonly inputTarget: HTMLInputElement;
+
+  connect(): void {
+    this.inputTarget.addEventListener('change', () => {
+      const files = Array.from(this.inputTarget.files || [])
+      this.loadImage(files)
+    })
+  }
+
+  loadImage(files: Array<File>): void {
     files.forEach((file) => {
 
       const reader = new FileReader();
@@ -13,6 +24,7 @@ export function setupImageLoader(element: HTMLInputElement) {
 
           image.classList.add("rounded")
           image.classList.add("loaded-image")
+          image.classList.add("pop")
           image.title = file.name;
           image.style.width = "100px";
           image.style.height = "auto";
@@ -33,11 +45,4 @@ export function setupImageLoader(element: HTMLInputElement) {
       reader.readAsDataURL(file);
     });
   };
-
-  element.addEventListener('change', () => {
-    const files = Array.from(element.files || [])
-    loadImage(files)
-  })
-
 }
-setupImageLoader(document.querySelector<HTMLInputElement>('input#image-loader')!)
