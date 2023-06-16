@@ -44,7 +44,9 @@ export default class extends Controller {
 
       let xOffsetValue = (index % 2) * constrainedImageSize;
       let yOffsetValue = Math.floor(index / 2) * constrainedImageSize;
-      context.strokeRect(xOffsetValue, yOffsetValue, constrainedImageSize, constrainedImageSize);
+      if (import.meta.env.DEV) {
+        context.strokeRect(xOffsetValue, yOffsetValue, constrainedImageSize, constrainedImageSize);
+      }
 
       if (image.naturalWidth >= image.naturalHeight) {
         const aspectRatio = constrainedImageSize / image.naturalWidth;
