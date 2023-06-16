@@ -1,4 +1,4 @@
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static targets = ["input"];
@@ -6,15 +6,14 @@ export default class extends Controller {
   declare readonly inputTarget: HTMLInputElement;
 
   connect(): void {
-    this.inputTarget.addEventListener('change', () => {
-      const files = Array.from(this.inputTarget.files || [])
-      this.loadImage(files)
-    })
+    this.inputTarget.addEventListener("change", () => {
+      const files = Array.from(this.inputTarget.files || []);
+      this.loadImage(files);
+    });
   }
 
   loadImage(files: Array<File>): void {
     files.forEach((file) => {
-
       const reader = new FileReader();
 
       reader.addEventListener(
@@ -22,20 +21,16 @@ export default class extends Controller {
         function (this: FileReader) {
           const image = new Image();
 
-          image.classList.add("rounded")
-          image.classList.add("loaded-image")
-          image.classList.add("pop")
+          image.classList.add("rounded", "loaded-image", "pop");
           image.title = file.name;
           image.style.width = "100px";
           image.style.height = "auto";
 
-          const src = this.result || "";
-          if (src instanceof ArrayBuffer) {
+          if (this.result instanceof ArrayBuffer || this.result === null) {
             return;
           }
-          image.src = src;
-          image.dataset.action="click->collage#addImage"
-
+          image.src = this.result;
+          image.dataset.action = "click->collage#addImage";
 
           document.querySelector("#loaded-images")?.appendChild(image);
         },
@@ -44,5 +39,5 @@ export default class extends Controller {
 
       reader.readAsDataURL(file);
     });
-  };
+  }
 }
