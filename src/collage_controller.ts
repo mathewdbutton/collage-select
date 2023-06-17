@@ -7,10 +7,6 @@ export default class extends Controller {
 
   static targets = ["canvas"];
 
-  static values = {
-    xOffset: Number,
-  };
-
   declare readonly canvasTarget: HTMLCanvasElement;
 
   addImage(event: Event) {
