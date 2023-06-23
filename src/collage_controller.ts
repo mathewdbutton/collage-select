@@ -4,30 +4,18 @@ import SelectedImage from "./models/selectedImage";
 const ConstrainedImageSize = 500;
 
 export default class extends Controller {
-
-  static targets = ["canvas"];
+  static targets = ["canvas", "image"];
 
   declare readonly canvasTarget: HTMLCanvasElement;
+  declare readonly imageTargets: HTMLImageElement[];
 
-  addImage(event: Event) {
+  redraw() {
     let allSelectedImages = [];
-    const image = <HTMLImageElement>event.target;
-    image.classList.toggle("selected");
-    if (image.dataset.selectedIndex !== undefined) {
-      delete image.dataset.selectedIndex;
 
-      const images = <NodeListOf<HTMLImageElement>>document.querySelectorAll("[data-selected-index]") || [];
-      allSelectedImages = Array.from(images).sort((a, b) => {
-        return parseInt(<string>a.dataset.selectedIndex, 10) - parseInt(<string>b.dataset.selectedIndex, 10);
-      });
-    } else {
-      const images = <NodeListOf<HTMLImageElement>>document.querySelectorAll("[data-selected-index]") || [];
-      image.dataset.selectedIndex = (images.length + 1).toString();
-
-      allSelectedImages = [...Array.from(images), image].sort((a, b) => {
-        return parseInt(<string>a.dataset.selectedIndex, 10) - parseInt(<string>b.dataset.selectedIndex, 10);
-      });
-    }
+    const images = this.imageTargets;
+    allSelectedImages = Array.from(images).sort((a, b) => {
+      return parseInt(<string>a.dataset.selectedIndex, 10) - parseInt(<string>b.dataset.selectedIndex, 10);
+    });
 
     const context = this.canvasTarget.getContext("2d");
     if (context === null) return;
@@ -41,7 +29,12 @@ export default class extends Controller {
     allSelectedImages.forEach((image: HTMLImageElement, index: number) => {
       const selectedImage = new SelectedImage(image, index);
       if (import.meta.env.DEV) {
-        context.strokeRect(this.xImageOffset(selectedImage), this.yImageOffset(selectedImage), ConstrainedImageSize, ConstrainedImageSize);
+        context.strokeRect(
+          this.xImageOffset(selectedImage),
+          this.yImageOffset(selectedImage),
+          ConstrainedImageSize,
+          ConstrainedImageSize
+        );
       }
       context?.drawImage(
         image,
@@ -51,6 +44,33 @@ export default class extends Controller {
         this.aggregateHeight(selectedImage)
       );
     });
+  }
+
+  numSelectedImages() {
+    return this.imageTargets.length;
+  }
+
+  addImage(event: Event) {
+    const image = <HTMLImageElement>event.target;
+    image.classList.toggle("selected");
+
+    if (image.dataset.selectedIndex == undefined) {
+      image.dataset.selectedIndex = (this.numSelectedImages() + 1).toString();
+      image.dataset.collageTarget = "image";
+    } else {
+
+      delete image.dataset.selectedIndex;
+      delete image.dataset.collageTarget;
+      this.imageTargets.forEach((image) => {
+        const index = image.dataset.selectedIndex;
+        if (index === undefined) return;
+        const parsedIndex = parseInt(index, 10);
+        if ( parsedIndex > this.numSelectedImages()) {
+          image.dataset.selectedIndex = (parsedIndex - 1).toString();
+        }
+      });
+    }
+    this.redraw();
   }
 
   downloadCollage() {
@@ -94,28 +114,23 @@ export default class extends Controller {
     return selectedImage.image.naturalWidth * selectedImage.aspectRatio();
   }
 
-  private aggregateHeight(image: SelectedImage): number  {
-
-    return this.aggregator(image, [this.imageHeight])
+  private aggregateHeight(image: SelectedImage): number {
+    return this.aggregator(image, [this.imageHeight]);
   }
 
-  private aggregator(image: SelectedImage, functions: ((SelectedImage: SelectedImage) => number)[]):number {
-    return functions.reduce(
-      (accumulator, currentValue) => accumulator + currentValue(image),
-      0,
-    );
+  private aggregator(image: SelectedImage, functions: ((SelectedImage: SelectedImage) => number)[]): number {
+    return functions.reduce((accumulator, currentValue) => accumulator + currentValue(image), 0);
   }
 
   private aggregateWidth(image: SelectedImage): number {
-    return this.aggregator(image, [this.imageWidth])
+    return this.aggregator(image, [this.imageWidth]);
   }
 
   private finalXPosition(image: SelectedImage): number {
-
-    return this.aggregator(image, [this.xImageOffset, this.xImageCentering])
+    return this.aggregator(image, [this.xImageOffset, this.xImageCentering]);
   }
 
   private finalYPosition(image: SelectedImage): number {
-    return this.aggregator(image, [this.yImageOffset, this.yImageCentering])
+    return this.aggregator(image, [this.yImageOffset, this.yImageCentering]);
   }
 }
