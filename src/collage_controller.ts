@@ -4,17 +4,17 @@ import SelectedImage from "./models/selectedImage";
 const ConstrainedImageSize = 500;
 
 export default class extends Controller {
-  static targets = ["canvas", "image", "numColumns"];
+  static targets = ["canvas", "image", "numColumns", "centraliseImages"];
 
   declare readonly canvasTarget: HTMLCanvasElement;
   declare readonly imageTargets: HTMLImageElement[];
   declare readonly numColumnsTarget: HTMLInputElement;
+  declare readonly centraliseImagesTarget: HTMLInputElement;
 
   connect(): void {
     this.numColumnsTarget.value = "2";
-    this.numColumnsTarget.addEventListener("change", () => {
-      this.redraw();
-    })
+    this.numColumnsTarget.addEventListener("change", () => this.redraw());
+    this.centraliseImagesTarget.addEventListener("change", () => this.redraw());
   }
 
   redraw() {
@@ -54,8 +54,12 @@ export default class extends Controller {
     });
   }
 
-  numSelectedImages():number {
+  numSelectedImages(): number {
     return this.imageTargets.length;
+  }
+
+  isImagesCentralised(): boolean {
+    return this.centraliseImagesTarget.checked
   }
 
   numColumns(): number {
@@ -70,14 +74,13 @@ export default class extends Controller {
       image.dataset.selectedIndex = (this.numSelectedImages() + 1).toString();
       image.dataset.collageTarget = "image";
     } else {
-
       delete image.dataset.selectedIndex;
       delete image.dataset.collageTarget;
       this.imageTargets.forEach((image) => {
         const index = image.dataset.selectedIndex;
         if (index === undefined) return;
         const parsedIndex = parseInt(index, 10);
-        if ( parsedIndex > this.numSelectedImages()) {
+        if (parsedIndex > this.numSelectedImages()) {
           image.dataset.selectedIndex = (parsedIndex - 1).toString();
         }
       });
@@ -101,7 +104,7 @@ export default class extends Controller {
   }
 
   private yImageCentering(selectedImage: SelectedImage): number {
-    if (selectedImage.isLandscape) {
+    if (selectedImage.isLandscape && this.isImagesCentralised()) {
       const height = selectedImage.image.naturalHeight * selectedImage.aspectRatio();
       return (ConstrainedImageSize - height) / 2;
     }
@@ -110,7 +113,7 @@ export default class extends Controller {
   }
 
   private xImageCentering(selectedImage: SelectedImage): number {
-    if (selectedImage.isLandscape) {
+    if (selectedImage.isLandscape || !this.isImagesCentralised()) {
       return 0;
     }
 
