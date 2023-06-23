@@ -6,17 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Collage Select</title>
   </head>
-  <body data-controller="collage" class="h-max-full">
-    <main class="mx-auto p-4 flex flex-row space-x-2 bg-slate-100 h-full">
-      <section data-controller="image-loader" id="image-loader" class="basis-1/4 border-2 rounded-lg border-solid border-gray-500 p-4 bg-emerald-50">
-        <input data-image-loader-target="input" type="file" id="image-loader" multiple accept="image/*">
-        <input type="number" data-collage-target="numColumns">
-        <button data-action="collage#downloadCollage" class="bg-emerald-600 text-white border rounded-md px-2">Download</button>
-        <div id="loaded-images" class="space-y-2"></div>
-      </section>
-      <section id="canvas" class="basis-3/4 border-2 rounded-lg border-solid border-gray-500 p-4">
-        <canvas id="collage" class="w-full" data-collage-target="canvas" data-collage-x-offset="0"></canvas>
-      </section>
+  <body data-controller="collage" class="flex">
+    <main class=" flex flex-1 flex-col">
+      <div class="p-4 flex space-x-2 bg-slate-100 flex-1">
+        <section data-controller="image-loader" id="image-loader" class="basis-1/4 border-2 rounded-lg border-solid border-gray-500 p-4 bg-emerald-50 flex-auto">
+          <input data-image-loader-target="input" type="file" id="image-loader" multiple accept="image/*">
+          <input type="number" data-collage-target="numColumns" min="1">
+          <button data-action="collage#downloadCollage" class="bg-emerald-600 text-white border rounded-md px-2">Download</button>
+          <div id="loaded-images" class="space-y-2">
+          </div>
+        </section>
+        <section id="canvas" class="h-full basis-3/4 border-2 rounded-lg border-solid border-gray-500 p-4">
+          <canvas id="collage" class="w-full" data-collage-target="canvas" data-collage-x-offset="0"></canvas>
+        </section>
+      </div>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
