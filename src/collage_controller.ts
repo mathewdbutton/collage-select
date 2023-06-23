@@ -119,7 +119,8 @@ export default class extends Controller {
   }
 
   private aggregator(image: SelectedImage, functions: ((SelectedImage: SelectedImage) => number)[]): number {
-    return functions.reduce((accumulator, currentValue) => accumulator + currentValue(image), 0);
+    const app = this;
+    return functions.reduce((accumulator, currentValue) => accumulator + currentValue.call(app, image), 0);
   }
 
   private aggregateWidth(image: SelectedImage): number {
