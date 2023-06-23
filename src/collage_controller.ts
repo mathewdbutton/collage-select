@@ -4,10 +4,18 @@ import SelectedImage from "./models/selectedImage";
 const ConstrainedImageSize = 500;
 
 export default class extends Controller {
-  static targets = ["canvas", "image"];
+  static targets = ["canvas", "image", "numColumns"];
 
   declare readonly canvasTarget: HTMLCanvasElement;
   declare readonly imageTargets: HTMLImageElement[];
+  declare readonly numColumnsTarget: HTMLInputElement;
+
+  connect(): void {
+    this.numColumnsTarget.value = "2";
+    this.numColumnsTarget.addEventListener("change", () => {
+      this.redraw();
+    })
+  }
 
   redraw() {
     let allSelectedImages = [];
@@ -21,7 +29,7 @@ export default class extends Controller {
     if (context === null) return;
 
     const canvas = this.canvasTarget;
-    canvas.width = Math.min(allSelectedImages.length, 2) * ConstrainedImageSize;
+    canvas.width = Math.min(allSelectedImages.length, this.numColumns()) * ConstrainedImageSize;
     canvas.height = Math.floor((allSelectedImages.length + 1) / 2) * ConstrainedImageSize;
     canvas.style.width = `${canvas.width}px`;
     canvas.style.height = `${canvas.height}px`;
@@ -46,8 +54,12 @@ export default class extends Controller {
     });
   }
 
-  numSelectedImages() {
+  numSelectedImages():number {
     return this.imageTargets.length;
+  }
+
+  numColumns(): number {
+    return parseInt(this.numColumnsTarget.value, 10);
   }
 
   addImage(event: Event) {
@@ -81,11 +93,11 @@ export default class extends Controller {
   }
 
   private xImageOffset(selectedImage: SelectedImage): number {
-    return (selectedImage.selectedIndex % 2) * ConstrainedImageSize;
+    return (selectedImage.selectedIndex % this.numColumns()) * ConstrainedImageSize;
   }
 
   private yImageOffset(selectedImage: SelectedImage): number {
-    return Math.floor(selectedImage.selectedIndex / 2) * ConstrainedImageSize;
+    return Math.floor(selectedImage.selectedIndex / this.numColumns()) * ConstrainedImageSize;
   }
 
   private yImageCentering(selectedImage: SelectedImage): number {
