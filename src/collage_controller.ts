@@ -13,7 +13,7 @@ export default class extends Controller {
   connect(): void {
     this.numColumnsTarget.value = "2";
     this.imageSizeTarget.value = "500";
-    this.numColumnsTarget.addEventListener("change", () => this.redraw());
+    this.numColumnsTarget.addEventListener("input", () => this.redraw());
     this.centraliseImagesTarget.addEventListener("change", () => this.redraw());
     this.imageSizeTarget.addEventListener("input", () => this.redraw());
   }
