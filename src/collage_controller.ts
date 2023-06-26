@@ -1,20 +1,21 @@
 import { Controller } from "@hotwired/stimulus";
 import SelectedImage from "./models/selectedImage";
 
-const ConstrainedImageSize = 500;
-
 export default class extends Controller {
-  static targets = ["canvas", "image", "numColumns", "centraliseImages"];
+  static targets = ["canvas", "image", "numColumns", "centraliseImages", "imageSize"];
 
   declare readonly canvasTarget: HTMLCanvasElement;
   declare readonly imageTargets: HTMLImageElement[];
   declare readonly numColumnsTarget: HTMLInputElement;
   declare readonly centraliseImagesTarget: HTMLInputElement;
+  declare readonly imageSizeTarget: HTMLInputElement;
 
   connect(): void {
     this.numColumnsTarget.value = "2";
+    this.imageSizeTarget.value = "500";
     this.numColumnsTarget.addEventListener("change", () => this.redraw());
     this.centraliseImagesTarget.addEventListener("change", () => this.redraw());
+    this.imageSizeTarget.addEventListener("input", () => this.redraw());
   }
 
   redraw() {
@@ -29,19 +30,19 @@ export default class extends Controller {
     if (context === null) return;
 
     const canvas = this.canvasTarget;
-    canvas.width = Math.min(allSelectedImages.length, this.numColumns()) * ConstrainedImageSize;
-    canvas.height = Math.floor((allSelectedImages.length + 1) / 2) * ConstrainedImageSize;
+    canvas.width = Math.min(allSelectedImages.length, this.numColumns()) * this.constrainedImageSize();
+    canvas.height = Math.floor((allSelectedImages.length + 1) / 2) * this.constrainedImageSize();
     canvas.style.width = `${canvas.width}px`;
     canvas.style.height = `${canvas.height}px`;
 
     allSelectedImages.forEach((image: HTMLImageElement, index: number) => {
-      const selectedImage = new SelectedImage(image, index);
+      const selectedImage = new SelectedImage(image, index, this.constrainedImageSize());
       if (import.meta.env.DEV) {
         context.strokeRect(
           this.xImageOffset(selectedImage),
           this.yImageOffset(selectedImage),
-          ConstrainedImageSize,
-          ConstrainedImageSize
+          this.constrainedImageSize(),
+          this.constrainedImageSize()
         );
       }
       context?.drawImage(
@@ -59,7 +60,11 @@ export default class extends Controller {
   }
 
   isImagesCentralised(): boolean {
-    return this.centraliseImagesTarget.checked
+    return this.centraliseImagesTarget.checked;
+  }
+
+  constrainedImageSize(): number {
+    return parseInt(this.imageSizeTarget.value, 10);
   }
 
   numColumns(): number {
@@ -96,17 +101,17 @@ export default class extends Controller {
   }
 
   private xImageOffset(selectedImage: SelectedImage): number {
-    return (selectedImage.selectedIndex % this.numColumns()) * ConstrainedImageSize;
+    return (selectedImage.selectedIndex % this.numColumns()) * this.constrainedImageSize();
   }
 
   private yImageOffset(selectedImage: SelectedImage): number {
-    return Math.floor(selectedImage.selectedIndex / this.numColumns()) * ConstrainedImageSize;
+    return Math.floor(selectedImage.selectedIndex / this.numColumns()) * this.constrainedImageSize();
   }
 
   private yImageCentering(selectedImage: SelectedImage): number {
     if (selectedImage.isLandscape && this.isImagesCentralised()) {
       const height = selectedImage.image.naturalHeight * selectedImage.aspectRatio();
-      return (ConstrainedImageSize - height) / 2;
+      return (this.constrainedImageSize() - height) / 2;
     }
 
     return 0;
@@ -118,7 +123,7 @@ export default class extends Controller {
     }
 
     const width = selectedImage.image.naturalWidth * selectedImage.aspectRatio();
-    return (ConstrainedImageSize - width) / 2;
+    return (this.constrainedImageSize() - width) / 2;
   }
 
   private imageHeight(selectedImage: SelectedImage): number {

@@ -2,11 +2,12 @@ export default class SelectedImage {
   image: HTMLImageElement;
   selectedIndex: number;
   isLandscape: boolean;
-  private constrainedImageSize = 500;
+  constrainedImageSize: number;
 
-  constructor(image: HTMLImageElement, selectedIndex: number) {
+  constructor(image: HTMLImageElement, selectedIndex: number, constrainedImageSize: number) {
     this.image = image;
     this.selectedIndex = selectedIndex;
+    this.constrainedImageSize = constrainedImageSize
     this.isLandscape = this.image.naturalWidth >= this.image.naturalHeight
   }
 
