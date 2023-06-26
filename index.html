@@ -7,10 +7,13 @@
     <title>Collage Select</title>
   </head>
   <body data-controller="collage" class="flex">
-    <main class=" flex flex-1 flex-col">
+    <main class="flex flex-1 flex-col">
       <div class="p-4 flex space-x-2 bg-slate-100 flex-1">
-        <section data-controller="image-loader" id="image-loader" class="basis-1/4 border-2 rounded-lg border-solid border-gray-500 p-4 bg-emerald-50 flex-auto">
-          <input data-image-loader-target="input" type="file" id="image-loader" multiple accept="image/*">
+        <section
+          data-controller="image-loader"
+          id="image-loader"
+          class="basis-1/4 border-2 rounded-lg border-solid border-gray-500 p-4 bg-emerald-50 flex-auto"
+        >
           <div class="flex">
             <label for="numColumns" class="basis-1/2"> Columns: </label>
             <input
@@ -37,8 +40,31 @@
               <input id="centraliseImages" type="checkbox" data-collage-target="centraliseImages" checked />
             </div>
           </div>
-          <button data-action="collage#downloadCollage" class="bg-emerald-600 text-white border rounded-md px-2">Download</button>
+          <button
+            data-action="collage#downloadCollage"
+            class="bg-emerald-600 text-white border rounded-md px-2"
+          >
+            Download
+          </button>
           <div id="loaded-images" class="space-y-2">
+            <label
+              for="uploadImage"
+              class="cursor-pointer block text-center fill-emerald-500 border-emerald-500 text-emerald-500 hover:fill-emerald-600 hover:border-emerald-600 hover:text-emerald-600 active:fill-emerald-700 active:border-emerald-700 active:text-emerald-700 pb-2 px-1 rounded-xl border-solid border-8"
+            >
+              Add Image
+              <svg class="m-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+                <path d="M24 9h-9V0H9v9H0v6h9v9h6v-9h9z" />
+              </svg>
+              <input
+                class="hidden"
+                id="uploadImage"
+                data-image-loader-target="input"
+                type="file"
+                id="image-loader"
+                multiple
+                accept="image/*"
+              />
+            </label>
           </div>
         </section>
         <section id="canvas" class="h-full basis-3/4 border-2 rounded-lg border-solid border-gray-500 p-4">
