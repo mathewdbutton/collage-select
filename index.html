@@ -11,9 +11,32 @@
       <div class="p-4 flex space-x-2 bg-slate-100 flex-1">
         <section data-controller="image-loader" id="image-loader" class="basis-1/4 border-2 rounded-lg border-solid border-gray-500 p-4 bg-emerald-50 flex-auto">
           <input data-image-loader-target="input" type="file" id="image-loader" multiple accept="image/*">
-          <input type="number" data-collage-target="numColumns" min="1">
-          <input type="number" data-collage-target="imageSize" step="10">
-          <input type="checkbox" data-collage-target="centraliseImages" checked>
+          <div class="flex">
+            <label for="numColumns" class="basis-1/2"> Columns: </label>
+            <input
+              id="numColumns"
+              class="basis-1/2 w-full"
+              type="number"
+              data-collage-target="numColumns"
+              min="1"
+            />
+          </div>
+          <div class="flex">
+            <label for="imageSize" class="basis-1/2"> Image Size </label>
+            <input
+              id="imageSize"
+              class="basis-1/2 w-full"
+              type="number"
+              data-collage-target="imageSize"
+              step="10"
+            />
+          </div>
+          <div class="flex">
+            <label for="centraliseImages" class="basis-1/2"> Centralise Images </label>
+            <div class="basis-1/2">
+              <input id="centraliseImages" type="checkbox" data-collage-target="centraliseImages" checked />
+            </div>
+          </div>
           <button data-action="collage#downloadCollage" class="bg-emerald-600 text-white border rounded-md px-2">Download</button>
           <div id="loaded-images" class="space-y-2">
           </div>
