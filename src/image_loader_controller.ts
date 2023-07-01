@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus";
+import uploadedImageTemplate from "./templates/uploadedImage";
 
 export default class extends Controller {
   static targets = ["input"];
@@ -19,20 +20,11 @@ export default class extends Controller {
       reader.addEventListener(
         "load",
         function (this: FileReader) {
-          const image = new Image();
-
-          image.classList.add("rounded", "loaded-image", "pop");
-          image.title = file.name;
-          image.style.width = "100px";
-          image.style.height = "auto";
-
           if (this.result instanceof ArrayBuffer || this.result === null) {
             return;
           }
-          image.src = this.result;
-          image.dataset.action = "click->collage#addImage";
-
-          document.querySelector("#loaded-images")?.appendChild(image);
+          const image = uploadedImageTemplate({ src: this.result, filename: file.name });
+          document.querySelector("#loaded-images")?.insertAdjacentHTML("beforeend", image);
         },
         false
       );
