@@ -12,10 +12,12 @@ declare global {
 
 import CollageController from "./collage_controller";
 import ImageLoader from "./image_loader_controller";
+import Image from "./image_controller";
 
 window.Stimulus = Application.start();
 window.Stimulus.register("collage", CollageController);
 window.Stimulus.register("image-loader", ImageLoader);
+window.Stimulus.register("image", Image);
 
 if (import.meta.env.DEV) {
   [

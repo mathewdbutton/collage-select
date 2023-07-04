@@ -101,29 +101,29 @@ export default class extends Controller {
   }
 
   private xImageOffset(selectedImage: SelectedImage): number {
-    return (selectedImage.selectedIndex % this.numColumns()) * this.constrainedImageSize();
+    return (selectedImage.selectedIndex % this.numColumns()) * selectedImage.imageSize;
   }
 
   private yImageOffset(selectedImage: SelectedImage): number {
-    return Math.floor(selectedImage.selectedIndex / this.numColumns()) * this.constrainedImageSize();
+    return Math.floor(selectedImage.selectedIndex / this.numColumns()) * selectedImage.imageSize;
   }
 
   private yImageCentering(selectedImage: SelectedImage): number {
-    if (selectedImage.isLandscape && this.isImagesCentralised()) {
-      const height = selectedImage.image.naturalHeight * selectedImage.aspectRatio();
-      return (this.constrainedImageSize() - height) / 2;
+    if (!this.isImagesCentralised()) {
+      return 0;
     }
 
-    return 0;
+    const height = selectedImage.image.naturalHeight * selectedImage.aspectRatio();
+    return (selectedImage.imageSize - height) / 2;
   }
 
   private xImageCentering(selectedImage: SelectedImage): number {
-    if (selectedImage.isLandscape || !this.isImagesCentralised()) {
+    if (!this.isImagesCentralised()) {
       return 0;
     }
 
     const width = selectedImage.image.naturalWidth * selectedImage.aspectRatio();
-    return (this.constrainedImageSize() - width) / 2;
+    return (selectedImage.imageSize - width) / 2;
   }
 
   private imageHeight(selectedImage: SelectedImage): number {
