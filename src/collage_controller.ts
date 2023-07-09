@@ -19,10 +19,7 @@ export default class extends Controller {
   }
 
   redraw() {
-    let allSelectedImages = [];
-
-    const images = this.imageTargets;
-    allSelectedImages = Array.from(images).sort((a, b) => {
+    const selectedImageElements = Array.from(this.imageTargets).sort((a, b) => {
       return parseInt(<string>a.dataset.selectedIndex, 10) - parseInt(<string>b.dataset.selectedIndex, 10);
     });
 
@@ -30,12 +27,12 @@ export default class extends Controller {
     if (context === null) return;
 
     const canvas = this.canvasTarget;
-    canvas.width = Math.min(allSelectedImages.length, this.numColumns()) * this.constrainedImageSize();
-    canvas.height = Math.floor((allSelectedImages.length + 1) / 2) * this.constrainedImageSize();
+    canvas.width = Math.min(selectedImageElements.length, this.numColumns()) * this.constrainedImageSize();
+    canvas.height = Math.floor((selectedImageElements.length + 1) / 2) * this.constrainedImageSize();
     canvas.style.width = `${canvas.width}px`;
     canvas.style.height = `${canvas.height}px`;
 
-    allSelectedImages.forEach((image: HTMLImageElement, index: number) => {
+    selectedImageElements.forEach((image: HTMLImageElement, index: number) => {
       const selectedImage = new SelectedImage(image, index, this.constrainedImageSize());
       if (import.meta.env.DEV) {
         context.strokeRect(
@@ -46,13 +43,13 @@ export default class extends Controller {
         );
       }
       context?.drawImage(
-        image,
+        selectedImage.image,
         this.finalXPosition(selectedImage),
         this.finalYPosition(selectedImage),
         this.aggregateWidth(selectedImage),
         this.aggregateHeight(selectedImage)
       );
-    });
+     })
   }
 
   numSelectedImages(): number {
