@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
 import SelectedImage from "./models/selectedImage";
+import SelectedImageFactory from "./services/selectedImageFactory";
 
 export default class extends Controller {
   static targets = ["canvas", "image", "numColumns", "centraliseImages", "imageSize"];
@@ -28,26 +29,57 @@ export default class extends Controller {
 
     const canvas = this.canvasTarget;
     canvas.width = Math.min(selectedImageElements.length, this.numColumns()) * this.constrainedImageSize();
-    canvas.height = Math.floor((selectedImageElements.length + 1) / 2) * this.constrainedImageSize();
+    canvas.height = Math.ceil((selectedImageElements.length / this.numColumns())) * 500;
     canvas.style.width = `${canvas.width}px`;
     canvas.style.height = `${canvas.height}px`;
 
-    selectedImageElements.forEach((image: HTMLImageElement, index: number) => {
-      const selectedImage = new SelectedImage(image, index, this.constrainedImageSize());
-      if (import.meta.env.DEV) {
+    const selectedImages: SelectedImage[] = selectedImageElements.reduce<SelectedImage[]>((accumulator: SelectedImage[], currentValue, currentIndex) => {
+      let isStartOfColumn: boolean = currentIndex % this.numColumns() === 0;
+      let previousSelectedImage = accumulator.at(-1)
+
+      let yOffset = 0;
+      if (currentIndex + 1 > this.numColumns()) {
+        let startOfRowOffset = currentIndex % this.numColumns()
+        let previousRow = accumulator.slice(currentIndex - startOfRowOffset - this.numColumns(), currentIndex - startOfRowOffset)
+         yOffset = Math.max(...previousRow.map((selectedImage) => {
+          return selectedImage.height + selectedImage.y
+        }))
+      }
+
+      const xOffset = isStartOfColumn || (previousSelectedImage === undefined) ? 0 : (previousSelectedImage.x + previousSelectedImage.imageContainerSize) || 0;
+
+      const selectedImage = SelectedImageFactory(
+        currentIndex,
+        currentValue,
+        this.constrainedImageSize(),
+        0,
+        0,
+        xOffset,
+        yOffset
+      );
+
+      accumulator.push(selectedImage);
+      return accumulator;
+    }, [])
+
+
+
+    selectedImages.forEach((image: SelectedImage) => {
+
+            if (import.meta.env.DEV) {
         context.strokeRect(
-          this.xImageOffset(selectedImage),
-          this.yImageOffset(selectedImage),
+          image.x,
+          image.y,
           this.constrainedImageSize(),
           this.constrainedImageSize()
         );
       }
       context?.drawImage(
-        selectedImage.image,
-        this.finalXPosition(selectedImage),
-        this.finalYPosition(selectedImage),
-        this.aggregateWidth(selectedImage),
-        this.aggregateHeight(selectedImage)
+        image.imageElement,
+        image.x + this.xImageCentering(image),
+        image.y,
+        image.width,
+        image.height
       );
      })
   }
@@ -110,29 +142,19 @@ export default class extends Controller {
       return 0;
     }
 
-    const height = selectedImage.image.naturalHeight * selectedImage.aspectRatio();
-    return (selectedImage.imageSize - height) / 2;
+
+    return (selectedImage.imageContainerSize - selectedImage.height) / 2;
   }
 
   private xImageCentering(selectedImage: SelectedImage): number {
     if (!this.isImagesCentralised()) {
       return 0;
     }
-
-    const width = selectedImage.image.naturalWidth * selectedImage.aspectRatio();
-    return (selectedImage.imageSize - width) / 2;
-  }
-
-  private imageHeight(selectedImage: SelectedImage): number {
-    return selectedImage.image.naturalHeight * selectedImage.aspectRatio();
-  }
-
-  private imageWidth(selectedImage: SelectedImage): number {
-    return selectedImage.image.naturalWidth * selectedImage.aspectRatio();
+    return (selectedImage.imageContainerSize - selectedImage.width) / 2;
   }
 
   private aggregateHeight(image: SelectedImage): number {
-    return this.aggregator(image, [this.imageHeight]);
+    return this.aggregator(image, []);
   }
 
   private aggregator(image: SelectedImage, functions: ((SelectedImage: SelectedImage) => number)[]): number {
@@ -141,11 +163,11 @@ export default class extends Controller {
   }
 
   private aggregateWidth(image: SelectedImage): number {
-    return this.aggregator(image, [this.imageWidth]);
+    return this.aggregator(image, []);
   }
 
   private finalXPosition(image: SelectedImage): number {
-    return this.aggregator(image, [this.xImageOffset, this.xImageCentering]);
+    return this.aggregator(image, [this.xImageCentering]);
   }
 
   private finalYPosition(image: SelectedImage): number {
