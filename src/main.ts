@@ -21,9 +21,14 @@ window.Stimulus.register("image", Image);
 
 if (import.meta.env.DEV) {
   [
-    { result: "./test-images/test.jpg", name: "test" },
-    { result: "./test-images/test-2.jpg", name: "test-1" },
-    { result: "./test-images/test-3.jpg", name: "test-2" },
+    { result: "./test-images/test-1.jpg", name: "test-1" },
+    { result: "./test-images/test-2.jpg", name: "test-2" },
+    { result: "./test-images/test-3.jpg", name: "test-3" },
+    { result: "./test-images/test-4.jpg", name: "test-4" },
+    { result: "./test-images/test-5.jpg", name: "test-5" },
+    { result: "./test-images/test-6.jpg", name: "test-6" },
+    { result: "./test-images/test-7.jpg", name: "test-7" },
+    { result: "./test-images/test-8.jpg", name: "test-8" },
   ].forEach((testImage) => {
     const image = uploadedImageTemplate({ src: testImage.result, filename: testImage.name });
     document.querySelector("#loaded-images")?.insertAdjacentHTML("beforeend", image);
