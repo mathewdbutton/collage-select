@@ -24,15 +24,6 @@ export default class extends Controller {
       return parseInt(<string>a.dataset.selectedIndex, 10) - parseInt(<string>b.dataset.selectedIndex, 10);
     });
 
-    const context = this.canvasTarget.getContext("2d");
-    if (context === null) return;
-
-    const canvas = this.canvasTarget;
-    canvas.width = Math.min(selectedImageElements.length, this.numColumns()) * this.constrainedImageSize();
-    canvas.height = Math.ceil((selectedImageElements.length / this.numColumns())) * 500;
-    canvas.style.width = `${canvas.width}px`;
-    canvas.style.height = `${canvas.height}px`;
-
     const selectedImages: SelectedImage[] = selectedImageElements.reduce<SelectedImage[]>((accumulator: SelectedImage[], currentValue, currentIndex) => {
       let isStartOfColumn: boolean = currentIndex % this.numColumns() === 0;
       let previousSelectedImage = accumulator.at(-1)
@@ -63,17 +54,28 @@ export default class extends Controller {
     }, [])
 
 
+    const canvasHeight = Math.max(
+      ...selectedImages
+        .slice(-this.numColumns())
+        .map((selectedImage) => selectedImage.y + selectedImage.height)
+    );
+    const canvasWidth = Math.max(
+      ...selectedImages
+        .filter((_selectedImage, index) => index % this.numColumns() === 1 || index + 1 === selectedImages.length)
+        .map((selectedImage) => selectedImage.x + selectedImage.imageContainerSize)
+    );
+
+    const canvas = this.canvasTarget;
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
+    canvas.style.width = `${canvas.width}px`;
+    canvas.style.height = `${canvas.height}px`;
 
     selectedImages.forEach((image: SelectedImage) => {
 
-            if (import.meta.env.DEV) {
-        context.strokeRect(
-          image.x,
-          image.y,
-          this.constrainedImageSize(),
-          this.constrainedImageSize()
-        );
-      }
+      const context = this.canvasTarget.getContext("2d");
+      if (context === null) return;
+
       context?.drawImage(
         image.imageElement,
         image.x + this.xImageCentering(image),
