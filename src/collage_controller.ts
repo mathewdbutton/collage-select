@@ -32,12 +32,13 @@ export default class extends Controller {
       if (currentIndex + 1 > this.numColumns()) {
         let startOfRowOffset = currentIndex % this.numColumns()
         let previousRow = accumulator.slice(currentIndex - startOfRowOffset - this.numColumns(), currentIndex - startOfRowOffset)
-         yOffset = Math.max(...previousRow.map((selectedImage) => {
-          return selectedImage.height + selectedImage.y
-        }))
+        yOffset = Math.max(...previousRow.map((selectedImage) => selectedImage.height + selectedImage.y))
       }
 
-      const xOffset = isStartOfColumn || (previousSelectedImage === undefined) ? 0 : (previousSelectedImage.x + previousSelectedImage.imageContainerSize) || 0;
+      let xOffset = 0;
+      if (!(isStartOfColumn || (previousSelectedImage === undefined))) {
+        xOffset = (previousSelectedImage.x + previousSelectedImage.imageContainerSize) || 0;
+      }
 
       const selectedImage = SelectedImageFactory(
         currentIndex,
